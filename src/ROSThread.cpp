@@ -769,14 +769,11 @@ void ROSThread::StereoThermal14BitLeftThread()
         cv_bridge::CvImage left_out_msg;
         left_out_msg.header.stamp.fromNSec(data);
         left_out_msg.header.frame_id = "stereo_thermal_14bit_left";
-        left_out_msg.encoding = sensor_msgs::image_encodings::MONO16;
+        left_out_msg.encoding = sensor_msgs::image_encodings::MONO8;
         left_out_msg.image    = stereo_thermal_14bit_left_next_img_.second;
        
         stereo_thermal_14bit_left_info_.header.stamp.fromNSec(data);
         stereo_thermal_14bit_left_info_.header.frame_id = "/stereo_thermal_14bit/left";
-
-
-
         stereo_thermal_14bit_left_pub_.publish(left_out_msg.toImageMsg());
         stereo_thermal_14bit_left_info_pub_.publish(stereo_thermal_14bit_left_info_);
 
@@ -784,16 +781,18 @@ void ROSThread::StereoThermal14BitLeftThread()
 //        cout << "Re-load stereo image from image path" << endl;
 
         string current_stereo_thermal_14bit_left_name = data_folder_path_ + "/image/stereo_thermal_14_left" +"/"+ to_string(data)+".png";
-        cv::Mat current_left_image;
+        cv::Mat current_left_image, cur_left_img_8;
         current_left_image = imread(current_stereo_thermal_14bit_left_name, cv::IMREAD_ANYDEPTH);
+        cur_left_img_8.create(current_left_image.size(), CV_8UC1);
+        Convert16To8(current_left_image, cur_left_img_8);
   
-        if(!current_left_image.empty()){
+        if(!cur_left_img_8.empty()){
 
             cv_bridge::CvImage left_out_msg;
             left_out_msg.header.stamp.fromNSec(data);
             left_out_msg.header.frame_id = "stereo_thermal_14bit_left";
-            left_out_msg.encoding = sensor_msgs::image_encodings::MONO16;
-            left_out_msg.image    = current_left_image;
+            left_out_msg.encoding = sensor_msgs::image_encodings::MONO8;
+            left_out_msg.image    = cur_left_img_8;
 
             stereo_thermal_14bit_left_info_.header.stamp.fromNSec(data);
             stereo_thermal_14bit_left_info_.header.frame_id = "/stereo_thermal_14bit/left";
@@ -807,8 +806,10 @@ void ROSThread::StereoThermal14BitLeftThread()
       current_img_index = find(next(stereo_thermal_14bit_left_file_list_.begin(), max(0,previous_img_index - search_bound_)),stereo_thermal_14bit_left_file_list_.end(),to_string(data)+".png") - stereo_thermal_14bit_left_file_list_.begin();
       if(current_img_index < stereo_file_list_.size()-2){
           string next_stereo_thermal_14bit_left_name = data_folder_path_ + "/image/stereo_thermal_14_left" +"/"+ stereo_thermal_14bit_left_file_list_[current_img_index+1];
-          cv::Mat next_left_image;
-          next_left_image = imread(next_stereo_thermal_14bit_left_name, cv::IMREAD_ANYDEPTH);
+          cv::Mat next_left_image, next_left_image_raw;
+          next_left_image_raw = imread(next_stereo_thermal_14bit_left_name, cv::IMREAD_ANYDEPTH);
+          next_left_image.create(next_left_image.size(), CV_8UC1);
+          Convert16To8(next_left_image_raw, next_left_image);
           if(!next_left_image.empty()){
               stereo_thermal_14bit_left_next_img_ = make_pair(stereo_thermal_14bit_left_file_list_[current_img_index+1], next_left_image);
           }
@@ -842,7 +843,7 @@ void ROSThread::StereoThermal14BitRightThread()
         cv_bridge::CvImage right_out_msg;
         right_out_msg.header.stamp.fromNSec(data);
         right_out_msg.header.frame_id = "stereo_thermal_14bit_right";
-        right_out_msg.encoding = sensor_msgs::image_encodings::MONO16;
+        right_out_msg.encoding = sensor_msgs::image_encodings::MONO8;
         right_out_msg.image    = stereo_thermal_14bit_right_next_img_.second;
        
         stereo_thermal_14bit_right_info_.header.stamp.fromNSec(data);
@@ -855,16 +856,19 @@ void ROSThread::StereoThermal14BitRightThread()
 //        cout << "Re-load stereo image from image path" << endl;
 
         string current_stereo_thermal_14bit_right_name = data_folder_path_ + "/image/stereo_thermal_14_right" +"/"+ to_string(data)+".png";
-        cv::Mat current_right_image;
-        current_right_image = imread(current_stereo_thermal_14bit_right_name, cv::IMREAD_ANYDEPTH);
 
-        if(!current_right_image.empty()){
+        cv::Mat current_right_image, cur_right_img_8;
+        current_right_image = imread(current_stereo_thermal_14bit_right_name, cv::IMREAD_ANYDEPTH);
+        cur_right_img_8.create(current_right_image.size(), CV_8UC1);
+        Convert16To8(current_right_image, cur_right_img_8);
+
+        if(!cur_right_img_8.empty()){
 
             cv_bridge::CvImage right_out_msg;
             right_out_msg.header.stamp.fromNSec(data);
             right_out_msg.header.frame_id = "stereo_thermal_14bit_right";
-            right_out_msg.encoding = sensor_msgs::image_encodings::MONO16;
-            right_out_msg.image    = current_right_image;
+            right_out_msg.encoding = sensor_msgs::image_encodings::MONO8;
+            right_out_msg.image    = cur_right_img_8;
 
             stereo_thermal_14bit_right_info_.header.stamp.fromNSec(data);
             stereo_thermal_14bit_right_info_.header.frame_id = "/stereo_thermal_14bit/right";
@@ -878,8 +882,10 @@ void ROSThread::StereoThermal14BitRightThread()
       current_img_index = find(next(stereo_thermal_14bit_right_file_list_.begin(), max(0,previous_img_index - search_bound_)),stereo_thermal_14bit_right_file_list_.end(),to_string(data)+".png") - stereo_thermal_14bit_right_file_list_.begin();
       if(current_img_index < stereo_file_list_.size()-2){
           string next_stereo_thermal_14bit_right_name = data_folder_path_ + "/image/stereo_thermal_14_right" +"/"+ stereo_thermal_14bit_right_file_list_[current_img_index+1];
-          cv::Mat next_right_image;
-          next_right_image = imread(next_stereo_thermal_14bit_right_name, cv::IMREAD_ANYDEPTH);
+          cv::Mat next_right_image, next_right_image_raw;
+          next_right_image_raw = imread(next_stereo_thermal_14bit_right_name, cv::IMREAD_ANYDEPTH);
+          next_right_image.create(next_right_image_raw.size(), CV_8UC1);
+          Convert16To8(next_right_image_raw, next_right_image);
           if(!next_right_image.empty()){
               stereo_thermal_14bit_right_next_img_ = make_pair(stereo_thermal_14bit_right_file_list_[current_img_index+1], next_right_image);
           }
@@ -890,6 +896,20 @@ void ROSThread::StereoThermal14BitRightThread()
   }
 }
 //end thermal Right Thread
+
+void ROSThread::Convert16To8(cv::Mat &img_in, cv::Mat &img_out)
+{
+    for(int r=0; r<img_in.rows; r++)
+    {
+        for(int c=0; c<img_out.cols; c++)
+        {
+            uint8_t eight_bit = (uint8_t)((img_in.at<ushort>(r,c)) / 64);
+            img_out.at<uchar>(r, c) = eight_bit;
+        }
+    }
+    return;
+}
+
 
 int ROSThread::GetDirList(string dir, vector<string> &files)
 {

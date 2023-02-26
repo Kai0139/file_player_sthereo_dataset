@@ -211,6 +211,8 @@ private:
     void StereoThermal14BitLeftThread();
     void StereoThermal14BitRightThread();
 
+    void Convert16To8(cv::Mat &img_in, cv::Mat &img_out);
+
     void FilePlayerStart(const std_msgs::BoolConstPtr& msg);
     void FilePlayerStop(const std_msgs::BoolConstPtr& msg);
 
